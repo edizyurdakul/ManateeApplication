@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace ManateeApplication
 {
@@ -7,47 +8,66 @@ namespace ManateeApplication
         string location;
         string[] sightDates;
         int[] manateeCount;
-        public ManateeSighting(string location, string[] sightDates, int[] manateeCount)
+        int sightingCount;
+        public ManateeSighting(string location, string[] sightDates, int[] manateeCount, int sightingCount)
         {
             this.location = location;
             this.sightDates = sightDates;
             this.manateeCount = manateeCount;
+            this.sightingCount = sightingCount;
         }
-        
 
-        double CalculateAverage()
+
+        public double CalculateAverage()
+        {
+            double totalSightings = 0;
+            foreach(int count in manateeCount)
+            {
+                totalSightings = totalSightings + count;
+            }
+            return totalSightings / sightingCount;
+        }
+
+        public int GetIndexOfMostSightings()
+        {
+            int index = 0;
+            int highest = 0;
+            for(int i = 0; i < sightingCount; i++)
+            {
+                if(manateeCount[i] > highest)
+                {
+                    highest = manateeCount[i];
+                    index = i;
+                }
+            }
+             
+            return index;
+        }
+
+        public int GetMostSightings()
+        {
+            return manateeCount[GetIndexOfMostSightings()];
+        }
+
+        public string GetDateWithMostSightings()
+        {
+            return sightDates[GetIndexOfMostSightings()];
+        }
+
+        public string GetMonthWithMostSightings()
+        {
+            return DateTime.ParseExact(GetDateWithMostSightings(), "MM/dd/yy", CultureInfo.InvariantCulture).ToString("MMMM");
+        }
+
+        public double ComputeAverageForMonth()
         {
             return 1;
         }
 
-        int GetIndexOfMostSightings()
+        public string ToString()
         {
-            return 1;
-        }
-
-        int GetMostSightings()
-        {
-            return 1;
-        }
-
-        string GetDateWithMostSightings()
-        {
-            return "hello";
-        }
-
-        string GetMonthWithMostSightings()
-        {
-            return "hello";
-        }
-
-        double ComputeAverageForMonth()
-        {
-            return 1;
-        }
-
-        string ToString()
-        {
-            return "";
+            return String.Format("\nLocation: \t{0}\nAverage number of sightings: \t{1}\nMonth name for the date with most sightings: \t{2}\nDate of most sightings: \t{3}\nCount for {4}: \t{5}", location, CalculateAverage(), GetMonthWithMostSightings(), GetDateWithMostSightings(), GetDateWithMostSightings(), GetMostSightings());
+            
         }
     }
 
@@ -59,7 +79,7 @@ namespace ManateeApplication
         {
             Console.Write("Location: ");
             location = Console.ReadLine();
-            Console.WriteLine("How many records for {0}", location);
+            Console.WriteLine("\nHow many records for {0}", location);
 
             int recordsCount = 0;
             bool checkParse = false;
@@ -72,21 +92,24 @@ namespace ManateeApplication
                 }
                 else
                 {
-                    Console.WriteLine("Couldn't parse your input, re-enter");
+                    Console.WriteLine("\nCouldn't parse your input, re-enter");
                 }
             } while (!checkParse);
 
 
             for (int i = 0; i < recordsCount; i++)
             {
-                Console.Write("Date: [mm/dd/yy]: ");
+                Console.Write("\nDate: [mm/dd/yy]: ");
                 string dateInput = Console.ReadLine();
                 if (dateInput == "")
                 {
-                    dateArray[i] = "No date entered - Unknown recorded for sightings";
+                    dateArray[i] = "\nNo date entered - Unknown recorded for sightings";
+                } else
+                {
+                    dateArray[i] = dateInput;
                 }
-
-                Console.Write("Number of sightings: ");
+ 
+                Console.Write("\nNumber of sightings: ");
                 string numOfSightings;
                 checkParse = false;
                 do
@@ -95,7 +118,7 @@ namespace ManateeApplication
 
                     if (numOfSightings == "")
                     {
-                        Console.WriteLine("Number of sightings cannot be empty");
+                        Console.WriteLine("\nNumber of sightings cannot be empty");
                     }
                     else
                     {
@@ -106,7 +129,7 @@ namespace ManateeApplication
                         }
                         else
                         {
-                            Console.WriteLine("Invalid input");
+                            Console.WriteLine("\nInvalid input re-enter");
                         }
                     }
                 } while (!checkParse);
@@ -119,12 +142,9 @@ namespace ManateeApplication
             int sightingCount;
             string[] dateArray = new string[50]; // What is the max?
             int[] manateeCount = new int[50]; // What is the max?
-            ManateeSighting m;
             sightingCount = GetData(out location, dateArray, manateeCount);
-            m = new ManateeSighting(location, dateArray, manateeCount);
-
-
-            Console.WriteLine("Hello World!");
+            ManateeSighting m = new ManateeSighting(location, dateArray, manateeCount, sightingCount);
+            Console.WriteLine(m.ToString());
         }
     }
 }
