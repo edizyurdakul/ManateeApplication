@@ -17,7 +17,6 @@ namespace ManateeApplication
             this.sightingCount = sightingCount;
         }
 
-
         public double CalculateAverage()
         {
             double totalSightings = 0;
@@ -56,17 +55,51 @@ namespace ManateeApplication
 
         public string GetMonthWithMostSightings()
         {
-            return DateTime.ParseExact(GetDateWithMostSightings(), "MM/dd/yy", CultureInfo.InvariantCulture).ToString("MMMM");
+
+            if (DateTime.TryParseExact(GetDateWithMostSightings(), "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateValue))
+            {
+                return dateValue.ToString("MMMM");
+            } else if (DateTime.TryParseExact(GetDateWithMostSightings(), "M/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
+            {
+                return dateValue.ToString("MMMM");
+            } else if (DateTime.TryParseExact(GetDateWithMostSightings(), "MM/d/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
+            {
+                return dateValue.ToString("MMMM");
+            } else if (DateTime.TryParseExact(GetDateWithMostSightings(), "M/d/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dateValue))
+            {
+                return dateValue.ToString("MMMM");
+            } else
+            {
+                return "Something went wrong";
+            }
         }
 
-        public double ComputeAverageForMonth()
+        public double ComputeAverageForMonth(string date)
         {
-            return 1;
+            int sightingCountPerMonth = 0;
+            int total = 0;
+            string month = DateTime.ParseExact(date, "MM/dd/yy", CultureInfo.InvariantCulture).ToString("MMMM");
+
+            for(int i = 0; i < sightingCount; i++)
+            {
+                if(month == sightDates[i])
+                {
+                    total = manateeCount[i];
+                    sightingCountPerMonth++;
+                }
+            }
+
+            return total/sightingCountPerMonth;
         }
 
         public string ToString()
         {
-            return String.Format("\nLocation: \t{0}\nAverage number of sightings: \t{1}\nMonth name for the date with most sightings: \t{2}\nDate of most sightings: \t{3}\nCount for {4}: \t{5}", location, CalculateAverage(), GetMonthWithMostSightings(), GetDateWithMostSightings(), GetDateWithMostSightings(), GetMostSightings());
+            return String.Format("\nLocation: \t{0}\nAverage number of sightings: \t{1}" +
+                "\nMonth name for the date with most sightings: \t{2}" +
+                "\nDate of most sightings: \t{3}\nCount for {4}: \t{5}", 
+                location, CalculateAverage(), GetMonthWithMostSightings(), 
+                GetDateWithMostSightings(), GetDateWithMostSightings(), 
+                GetMostSightings());
             
         }
     }
@@ -142,9 +175,24 @@ namespace ManateeApplication
             int sightingCount;
             string[] dateArray = new string[50]; // What is the max?
             int[] manateeCount = new int[50]; // What is the max?
-            sightingCount = GetData(out location, dateArray, manateeCount);
-            ManateeSighting m = new ManateeSighting(location, dateArray, manateeCount, sightingCount);
-            Console.WriteLine(m.ToString());
+            string moreData = "y";
+
+            do
+            {
+                sightingCount = GetData(out location, dateArray, manateeCount);
+                ManateeSighting m = new ManateeSighting(location, dateArray, manateeCount, sightingCount);
+                Console.WriteLine(m.ToString());
+
+
+                Console.WriteLine("Enter more data? [y/n] ");
+                moreData = Console.ReadLine();
+                if (moreData == "")
+                {
+                    Console.WriteLine("Invalid");
+                    moreData = "n";
+                }
+            } while (moreData.Equals("y", StringComparison.OrdinalIgnoreCase));
+            
         }
     }
 }
